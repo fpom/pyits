@@ -2,7 +2,7 @@ from ddd cimport sdd, makesdd, SDD, shom, makeshom, Shom
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 
-import os.path
+import os.path, os, warnings
 
 ##
 ## ITSModel
@@ -20,8 +20,6 @@ cdef extern from "its/gal/parser/GALParser.hh" namespace "its" :
 cdef extern from "its/ITSModel.hh" namespace "its" :
     cdef cppclass ITSModel :
         ITSModel()
-        Shom getNextRel () const
-        Shom getPredRel () const
 
 cdef extern from "its/Options.hh" namespace "its" :
     bint handleInputOptions(vector[const char*] &args, ITSModel &model)
@@ -66,7 +64,20 @@ cdef class model :
     cpdef shom succ (model self) :
         return makeshom(getNextRel(self.i[0]))
     cpdef shom pred (model self) :
-        return makeshom(getPredRel(self.i[0]))
+        cdef msg = []
+        cdef int r, w, s
+        cdef shom ret
+        r, w = os.pipe()
+        s = os.dup(2)
+        os.dup2(w, 2)
+        ret = makeshom(getPredRel(self.i[0]))
+        os.write(w, b"#EOF#")
+        while msg[-5:] != [b"#", b"E", b"O", b"F", b"#"] :
+            msg.append(os.read(r, 1))
+        os.dup2(s, 2)
+        if len(msg) > 5 :
+            warnings.warn(b"".join(msg[:-5]).decode().strip(), RuntimeWarning)
+        return ret
     cpdef sdd deadlocks (model self) :
         cdef sdd reach = self.reachable()
         cdef shom pred = self.pred()
