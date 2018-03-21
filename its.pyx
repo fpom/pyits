@@ -82,7 +82,7 @@ cdef class model :
             q = s
             s = pred(s) & q
         return s
-    def scc_iter (model self) :
+    def scc (model self) :
         cdef sdd sub = self.scc_union()
         cdef sdd node, comp
         cdef shom succs = (self.succ() & sub).star()
