@@ -22,9 +22,10 @@ sys.path.append(args.P)
 extensions = [Extension("its",
                         ["its.pyx"],
                         include_dirs = [args.I],
-                        libraries = ["ITS"],
+                        libraries = ["DDD", "antlr3c", "expat", "gmp", "gmpxx"],
                         library_dirs = [args.L],
                         language="c++",
+                        extra_objects=[os.path.join(args.L, "libITS.a")],
                         extra_compile_args=["-std=c++11"])]
 
 setup(ext_modules=cythonize(extensions, include_path=[args.P]),
