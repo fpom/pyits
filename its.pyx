@@ -67,6 +67,7 @@ cdef class model :
         cdef msg = []
         cdef int r, w, s
         cdef shom ret
+        cdef str warn
         r, w = os.pipe()
         s = os.dup(2)
         os.dup2(w, 2)
@@ -76,7 +77,9 @@ cdef class model :
             msg.append(os.read(r, 1))
         os.dup2(s, 2)
         if len(msg) > 5 :
-            warnings.warn(b"".join(msg[:-5]).decode().strip(), RuntimeWarning)
+            warn = b"".join(msg[:-5]).decode().strip()
+            if "Faster fixpoint algorithm enabled." not in warn :
+                warnings.warn(warn, RuntimeWarning)
         return ret
     cpdef sdd deadlocks (model self) :
         cdef sdd reach = self.reachable()
