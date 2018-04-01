@@ -1,6 +1,8 @@
 from ddd cimport sdd, makesdd, SDD, shom, makeshom, Shom
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from libcpp.pair cimport pair
+from libcpp.list cimport list
 
 import os.path, os, warnings
 
@@ -17,9 +19,15 @@ cdef extern from "its/gal/parser/GALParser.hh" namespace "its" :
         @staticmethod
         GAL* loadGAL (const string &filename)
 
+cdef extern from "its/Type.hh" namespace "its" :
+    cdef cppclass Type :
+        ctypedef pair[string,Shom] namedTr_t
+        ctypedef list[namedTr_t] namedTrs_t
+
 cdef extern from "its/ITSModel.hh" namespace "its" :
     cdef cppclass ITSModel :
         ITSModel()
+        void getNamedLocals (Type.namedTrs_t &ntrans) const
 
 cdef extern from "its/Options.hh" namespace "its" :
     bint handleInputOptions(vector[const char*] &args, ITSModel &model)
@@ -106,3 +114,10 @@ cdef class model :
             comp = succs(node) & preds(node)
             yield comp
             sub = sub - comp
+    cpdef dict transitions (model self) :
+        cdef Type.namedTrs_t name2shom
+        cdef dict d = {}
+        self.i.getNamedLocals(name2shom)
+        for p in name2shom :
+            d[p.first.decode()] = makeshom(new Shom(p.second))
+        return d
