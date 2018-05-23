@@ -40,7 +40,6 @@ cdef extern from "itswrap.h" :
     Shom *getPredRel (ITSModel i)
 
 cdef class model :
-    cdef ITSModel *i
     def __init__ (model self, str path, str fmt="") :
         """
         >>> m = model(",t.gal")
