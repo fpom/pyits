@@ -94,9 +94,15 @@ cdef class model :
         return reach - pred(reach)
     cpdef sdd scc_union (model self) :
         cdef sdd s = self.reachable()
-        cdef shom pred = self.pred().fixpoint()
-        cdef shom succ = self.succ().fixpoint()
-        return succ(s) & pred(s)
+        cdef sdd q = sdd.empty()
+        cdef shom pred = self.pred()
+        cdef shom succ = self.succ()
+        while s != q :
+            q = s
+            s = succ(s) & q
+            q = s
+            s = pred(s) & q
+        return s
     def scc (model self) :
         cdef sdd sub = self.scc_union()
         cdef sdd node, comp
