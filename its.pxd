@@ -20,5 +20,6 @@ cdef class model :
     cpdef shom succ (model self)
     cpdef shom pred (model self)
     cpdef sdd deadlocks (model self)
+    cpdef set scc (model self)
     cpdef sdd scc_union (model self)
     cpdef dict transitions (model self)
