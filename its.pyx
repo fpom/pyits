@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.list cimport list
 
-import os.path, os, warnings
+import os.path, os, warnings, functools, operator
 
 ##
 ## ITSModel
@@ -92,21 +92,36 @@ cdef class model :
         cdef sdd reach = self.reachable()
         cdef shom pred = self.pred()
         return reach - pred(reach)
+    cpdef set scc (model self) :
+        cdef set scc, refined
+        cdef sdd sub, node, s, p, i, r
+        cdef sdd empty = sdd.empty()
+        cdef shom sccpred = self.succ.gfp()
+        cdef shom sccsucc = self.pred.gfp()
+        cdef shom succ = self.succ.lfp()
+        cdef shom pred = self.pred.lfp()
+        scc = {sccpred(self.reachable()) & sccsucc(self.reachable())}
+        while True :
+            refined = set()
+            for sub in scc :
+                node = sub.pick()
+                s = succ(node) & sub
+                p = pred(node) & sub
+                i = s & p
+                r = sub - (s | p)
+                s -= i
+                p -= i
+                refined.add(sccpred(i) & sccsucc(i))
+                refined.add(sccpred(s) & sccsucc(s))
+                refined.add(sccpred(p) & sccsucc(p))
+                refined.add(sccpred(r) & sccsucc(r))
+            refined.discard(empty)
+            if refined == scc :
+                break
+            scc = refined
+        return scc
     cpdef sdd scc_union (model self) :
-        cdef sdd s = self.reachable()
-        cdef shom pred = self.pred().fixpoint()
-        cdef shom succ = self.succ().fixpoint()
-        return succ(s) & pred(s)
-    def scc (model self) :
-        cdef sdd sub = self.scc_union()
-        cdef sdd node, comp
-        cdef shom succs = (self.succ() & sub).star()
-        cdef shom preds = (self.pred() & sub).star()
-        while sub :
-            node = sub.pick()
-            comp = succs(node) & preds(node)
-            yield comp
-            sub = sub - comp
+        return functools.reduce(operator.or_, self.scc(), sdd.empty())
     cpdef dict transitions (model self) :
         cdef Type.namedTrs_t name2shom
         cdef dict d = {}
