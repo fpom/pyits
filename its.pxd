@@ -1,4 +1,4 @@
-from ddd cimport sdd, shom, Shom
+from ddd cimport sdd, shom, Shom, SDD
 from libcpp.string cimport string
 from libcpp.pair cimport pair
 from libcpp.list cimport list
@@ -12,9 +12,13 @@ cdef extern from "its/ITSModel.hh" namespace "its" :
     cdef cppclass ITSModel :
         ITSModel()
         void getNamedLocals (Type.namedTrs_t &ntrans) const
+        SDD getInitialState()
+        SDD computeReachable(bint wGarbage)
+        Shom getNextRel ()
+        Shom getPredRel ()
 
 cdef class model :
-    cdef ITSModel *i
+    cdef ITSModel i
     cpdef sdd initial (model self)
     cpdef sdd reachable (model self)
     cpdef shom succ (model self)
