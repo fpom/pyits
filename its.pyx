@@ -1,4 +1,4 @@
-from ddd cimport sdd, makesdd, SDD, shom, makeshom, Shom
+from ddd cimport sdd, makesdd, shom, makeshom, Shom
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
@@ -19,25 +19,8 @@ cdef extern from "its/gal/parser/GALParser.hh" namespace "its" :
         @staticmethod
         GAL* loadGAL (const string &filename)
 
-cdef extern from "its/Type.hh" namespace "its" :
-    cdef cppclass Type :
-        ctypedef pair[string,Shom] namedTr_t
-        ctypedef list[namedTr_t] namedTrs_t
-
-cdef extern from "its/ITSModel.hh" namespace "its" :
-    cdef cppclass ITSModel :
-        ITSModel()
-        void getNamedLocals (Type.namedTrs_t &ntrans) const
-
 cdef extern from "its/Options.hh" namespace "its" :
     bint handleInputOptions(vector[const char*] &args, ITSModel &model)
-
-cdef extern from "itswrap.h" :
-    SDD* getInitialState_ptr(ITSModel *i)
-    SDD* computeReachable_ptr (ITSModel *i, bint wGarbage)
-    Shom *getNextRel (ITSModel i)
-    Shom *getNextRel (ITSModel i)
-    Shom *getPredRel (ITSModel i)
 
 cdef class model :
     def __init__ (model self, str path, str fmt="") :
@@ -52,24 +35,24 @@ cdef class model :
                        "DLL", "NDLL", "DVE", "GAL", "CGAL", "AIGER"] :
             raise ValueError("unsupported input format %r" % fmt)
         cdef vector[const char*] args = [b"-t", fmt.encode(), b"-i", path.encode()]
-        self.i = new ITSModel()
-        handleInputOptions(args, self.i[0])
+        self.i = ITSModel()
+        handleInputOptions(args, self.i)
     cpdef sdd initial (model self) :
         """
         >>> m = model(",t.gal")
         >>> next(iter(m.initial().items()))
         {'#0': [{...'Ac': 1...}]}
         """
-        return makesdd(getInitialState_ptr(self.i))
+        return makesdd(self.i.getInitialState())
     cpdef sdd reachable (model self) :
         """
         >>> m = model(",t.gal")
         >>> len(m.reachable())
         109
         """
-        return makesdd(computeReachable_ptr(self.i, True))
+        return makesdd(self.i.computeReachable(True))
     cpdef shom succ (model self) :
-        return makeshom(getNextRel(self.i[0]))
+        return makeshom(self.i.getNextRel())
     cpdef shom pred (model self) :
         cdef msg = []
         cdef int r, w, s
@@ -78,7 +61,7 @@ cdef class model :
         r, w = os.pipe()
         s = os.dup(2)
         os.dup2(w, 2)
-        ret = makeshom(getPredRel(self.i[0]))
+        ret = makeshom(self.i.getPredRel())
         os.write(w, b"#EOF#")
         while msg[-5:] != [b"#", b"E", b"O", b"F", b"#"] :
             msg.append(os.read(r, 1))
@@ -127,5 +110,5 @@ cdef class model :
         cdef dict d = {}
         self.i.getNamedLocals(name2shom)
         for p in name2shom :
-            d[p.first.decode()] = makeshom(new Shom(p.second))
+            d[p.first.decode()] = makeshom(Shom(p.second))
         return d
