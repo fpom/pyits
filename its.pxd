@@ -19,11 +19,9 @@ cdef extern from "its/ITSModel.hh" namespace "its" :
 
 cdef class model :
     cdef ITSModel i
+    cdef readonly str path, fmt
     cpdef sdd initial (model self)
     cpdef sdd reachable (model self)
     cpdef shom succ (model self)
     cpdef shom pred (model self)
-    cpdef sdd deadlocks (model self)
-    cpdef set scc (model self)
-    cpdef sdd scc_union (model self)
     cpdef dict transitions (model self)
