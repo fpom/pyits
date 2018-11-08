@@ -71,3 +71,13 @@ cdef class model :
         for p in name2shom :
             d[p.first.decode()] = makeshom(Shom(p.second))
         return d
+    def observe (self, variables) :
+        cdef vector[string] v
+        cdef int i
+        cdef str n
+        cdef pType t
+        v.resize(len(variables))
+        for i, n in enumerate(variables) :
+            v[i] = n.encode()
+        t = self.i.getInstance().getType()
+        return makeshom(t.observe(v, self.i.computeReachable(True)))
