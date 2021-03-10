@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.list cimport list
 
-import os.path, os, warnings, functools, operator
+import os.path, os, warnings, functools, operator, sys
 
 ##
 ## ITSModel
@@ -37,13 +37,28 @@ cdef class model :
         {'#0': [{...'Ac': 1...}]}
         """
         return makesdd(self.i.getInitialState())
-    cpdef sdd reachable (model self) :
+    def reachable (model self, verbose=None) :
         """
         >>> m = model(",t.gal")
         >>> len(m.reachable())
         109
         """
-        return makesdd(self.i.computeReachable(True))
+        cdef sdd prev
+        cdef sdd succ
+        cdef shom trans
+        if verbose is None :
+            return makesdd(self.i.computeReachable(True))
+        prev = self.initial()
+        succ = sdd.empty()
+        trans = self.succ() | shom.ident()
+        while True :
+            if verbose(len(prev)) :
+                break
+            succ = trans(prev)
+            if succ == prev :
+                break
+            prev = succ
+        return succ
     cpdef shom succ (model self) :
         return makeshom(self.i.getNextRel())
     cpdef shom pred (model self) :
