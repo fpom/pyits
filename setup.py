@@ -42,41 +42,42 @@ def copytree (src, tgt, verbose=True) :
             if not _tgt.exists() :
                 copy(str(child), str(_tgt), verbose)
 
+BUILD.mkdir(exist_ok=True)
+for url, name in [("https://lip6.github.io/libITS/linux.tgz",
+                   "libITS-bin.tgz"),
+                  ("https://github.com/lip6/libITS/archive/master.tar.gz",
+                   "libITS-git.tgz"),
+                  ("https://lip6.github.io/libITS/itsreach-0.2.20210126152523.tar.gz",
+                   "libITS-src.tgz")] :
+    print(f"downloading {url!r}")
+    with urllib.request.urlopen(url) as remote, \
+         (BUILD / name).open("wb") as local :
+        local.write(remote.read())
+    with tarfile.open(BUILD / name) as tar :
+        tar.extractall(BUILD)
+        root = BUILD / next(iter(tar)).name
+        root.rename((BUILD / name).with_suffix(""))
+copytree(BUILD / "libITS-git", BUILD / "libITS-src", False)
+ITSLOC = (BUILD / "libITS-bin" / "local").absolute()
+print("building libITS")
+subprocess.check_call(["./configure", "--with-pic", "--enable-shared",
+                       f"--with-libddd={ITSLOC}",
+                       f"--with-antlrjar={ITSLOC}/lib/antlr-3.4-complete.jar",
+                       f"--with-libexpat={ITSLOC}",
+                       f"--with-antlrc={ITSLOC}",
+                       f"--with-gmp={ITSLOC}"],
+                      cwd=f"{BUILD}/libITS-src",
+                      env=dict(os.environ,
+                               CPPFLAGS=f"-I{ITSLOC}/include",
+                               LDFLAGS=f"-L{ITSLOC}/lib"))
+subprocess.check_call(["make"], cwd=f"{BUILD}/libITS-src")
+copy(str(BUILD / "libITS-src/lib/libITS.a"),
+     str(BUILD / "libITS-bin/local/lib/libITS.a"))
+
 class install (_install) :
     def run (self) :
-        base = Path(self.install_base)
-        BUILD.mkdir(exist_ok=True)
-        for url, name in [("https://lip6.github.io/libITS/linux.tgz",
-                           "libITS-bin.tgz"),
-                          ("https://github.com/lip6/libITS/archive/master.tar.gz",
-                           "libITS-git.tgz"),
-                          ("https://lip6.github.io/libITS/itsreach-0.2.20210126152523.tar.gz",
-                           "libITS-src.tgz")] :
-            print(f"downloading {url!r}")
-            with urllib.request.urlopen(url) as remote, \
-                 (BUILD / name).open("wb") as local :
-                local.write(remote.read())
-            with tarfile.open(BUILD / name) as tar :
-                tar.extractall(BUILD)
-                root = BUILD / next(iter(tar)).name
-                root.rename((BUILD / name).with_suffix(""))
-        copytree(BUILD / "libITS-git", BUILD / "libITS-src", False)
-        ITSLOC = (BUILD / "libITS-bin" / "local").absolute()
-        print("building libITS")
-        subprocess.check_call(["./configure", "--with-pic", "--enable-shared",
-                               f"--with-libddd={ITSLOC}",
-                               f"--with-antlrjar={ITSLOC}/lib/antlr-3.4-complete.jar",
-                               f"--with-libexpat={ITSLOC}",
-                               f"--with-antlrc={ITSLOC}",
-                               f"--with-gmp={ITSLOC}"],
-                              cwd=f"{BUILD}/libITS-src",
-                              env=dict(os.environ,
-                                       CPPFLAGS=f"-I{ITSLOC}/include",
-                                       LDFLAGS=f"-L{ITSLOC}/lib"))
-        subprocess.check_call(["make"], cwd=f"{BUILD}/libITS-src")
-        copy(str(BUILD / "libITS-src/lib/libITS.a"),
-             str(BUILD / "libITS-bin/local/lib/libITS.a"))
         super().run()
+        base = Path(self.install_base)
         for tree in ("bin", "include", "lib") :
             copytree(BUILD / "libITS-bin/local" / tree, base / tree)
         for path, names in [(Path(self.install_lib), ["its.pxd", "itswrap.h"])] :
