@@ -4,14 +4,14 @@ from distutils.extension import Extension
 from distutils.command.install import install as _install
 from pathlib import Path
 
-import urllib.request, tarfile, shutil, os, subprocess
+import urllib.request, tarfile, shutil, os, subprocess, tempfile
 
 import ddd
 
 long_description = Path("README.md").read_text(encoding="utf-8")
 description = (long_description.splitlines())[0]
 
-BUILD = Path("build")
+BUILD = tempfile.mktemp()
 ITSINC = str(BUILD / "libITS-bin/local/include")
 ITSLIB = str(BUILD / "libITS-bin/local/lib")
 
@@ -110,3 +110,5 @@ setup(name="pyits",
                             language_level=3),
       cmdclass={"install" : install},
 )
+
+shutil.rmtree(BUILD)
