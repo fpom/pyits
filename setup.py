@@ -11,7 +11,7 @@ import ddd
 long_description = Path("README.md").read_text(encoding="utf-8")
 description = (long_description.splitlines())[0]
 
-BUILD = tempfile.mktemp()
+BUILD = Path(tempfile.mktemp())
 ITSINC = str(BUILD / "libITS-bin/local/include")
 ITSLIB = str(BUILD / "libITS-bin/local/lib")
 
