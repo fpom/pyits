@@ -76,6 +76,7 @@ cdef class model :
         os.dup2(s, 2)
         if len(msg) > 5 :
             warn = b"".join(msg[:-5]).decode().strip()
+            # TODO: use a custom Warning class to enable easier filtering
             if "Faster fixpoint algorithm enabled." not in warn :
                 warnings.warn(warn, RuntimeWarning)
         return ret
