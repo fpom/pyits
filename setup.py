@@ -47,7 +47,7 @@ for url, name in [("https://lip6.github.io/libITS/linux.tgz",
                    "libITS-bin.tgz"),
                   ("https://github.com/lip6/libITS/archive/master.tar.gz",
                    "libITS-git.tgz"),
-                  ("https://github.com/lip6/libITS/raw/gh-pages/itsreach-0.2.20211107114140.tar.gz",
+                  ("https://github.com/lip6/libITS/raw/gh-pages/itsreach-0.2.20220428124359.tar.gz",
                    "libITS-src.tgz")] :
     print(f"downloading {url!r}")
     with urllib.request.urlopen(url) as remote, \
