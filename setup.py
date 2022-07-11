@@ -27,6 +27,9 @@ if not Path(ITSTGZ).exists() :
 with tarfile.open(ITSTGZ) as tar :
     tar.extractall(BUILD)
 
+for path in (BUILD / "usr/local/lib").glob("libDDD.*") :
+    path.unlink()
+
 class install (_install) :
     def run (self) :
         base = Path(self.install_base)
