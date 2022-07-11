@@ -4,12 +4,10 @@ from distutils.extension import Extension
 from distutils.command.install import install as _install
 from pathlib import Path
 
-import urllib.request, tarfile, sys
+import urllib.request, tarfile
 
 long_description = Path("README.md").read_text(encoding="utf-8")
 description = (long_description.splitlines())[0]
-
-print("***", sys.path)
 
 import ddd
 DDDLIB = Path(ddd.__file__).parent
