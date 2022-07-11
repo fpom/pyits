@@ -9,11 +9,6 @@ import urllib.request, tarfile
 long_description = Path("README.md").read_text(encoding="utf-8")
 description = (long_description.splitlines())[0]
 
-import sys
-print("***", sys.path)
-print("***", sys.version)
-print("***", sys.executable)
-
 import ddd
 DDDLIB = Path(ddd.__file__).parent
 
