@@ -8,16 +8,34 @@ This library provides a Python binding for [libITS](https://github.com/lip6/libI
 
 - Python 3
 - Cython
+- G++ v.11 (does not work with clang)
 - [pyddd](https://github.com/fpom/pyddd)
+- libITS (see below)
 
-libITS will be automatically downloaded and installed during the installation.
+G++ version 11 is needed to ensure compatibility with precompiled binaries
+(otherwise, compilation will fail with `lto1` complaining avout incompatible
+bytecode streams).
 
 ## Installation
 
-Run `pip install git+https://github.com/fpom/pyits`.
+First, `libITS` needs to be installed. Because it uses very tricky
+compilation options, a suitable precompiled version is
+[provided here](https://github.com/fpom/pyddd/raw/master/libITS.tar.gz).
+It contains two directories: `lib` and `include` that should be copied
+so that `ld` will find `lib/libITS.a`. Installation will assume that
+both directories reside together into the same location.
 
-You may check the doctests in the module by running `python3 test.py`,
-which should produce no output if everything goes well.
+Directories `lib` and `include` should be merged with those coming from
+the installation of [pyddd](https://github.com/fpom/pyddd) as detecting
+`lib/libDDD.so` will be used to know where `lib/libITS.a` resides.
+Please follow the same installation procedure as described in
+[pyddd/README.md](https://github.com/fpom/pyddd/blob/master/README.md),
+using `libITS.tar.gz` instead of `libDDD.tar.gz`.
+
+Then, run `pip install git+https://github.com/fpom/pyits`, or if you
+cloned the repository, `cd pyits && pip install .`. You may check the
+doctests in the module by running `python3 test.py`, which should
+produce no output if everything goes well.
 
 ## Licence
 
