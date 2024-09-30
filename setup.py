@@ -95,7 +95,7 @@ setup(
                 libraries=["DDD", "antlr3c", "expat", "gmp", "gmpxx"],
                 extra_objects=[str(ITSLIB / "libITS.a")],
                 library_dirs=[str(ITSLIB), str(DDDLIB)],
-                extra_compile_args=["-fno-lto", "-std=c++11"],
+                extra_compile_args=["-std=c++11"],
                 extra_link_args=["-Wl,--no-as-needed"],
             )
         ],
