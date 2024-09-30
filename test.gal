@@ -1,0 +1,92 @@
+gal termitesac {
+  int Rp = 1;
+  int Wk = 0;
+  int Sd = 0;
+  int Te = 0;
+  int Ec = 0;
+  int Fg = 0;
+  int Md = 0;
+  int Wd = 0;
+  int Ai = 0;
+  int Sl = 1;
+  int At = 1;
+  int Ac = 1;
+  // [cons] Wk==1, Te==1 >> Wd=0, Ai=0
+  transition R1[(Te == 1) && (Wk == 1) && !((Ai == 0) && (Wd == 0))] {
+    // [cons] Te==1, Wk==1 >> Wd=0, Ai=0
+    Wd = 0;
+    Ai = 0;
+  }
+  // [depl] Fg==0 >> Te=0
+  transition R2[(Fg == 0) && !((Te == 0))] {
+    // [depl] Fg==0 >> Te=0
+    Te = 0;
+  }
+  // [prod] Wk==1, Sl==1 >> Wd=1, Te=1, Fg=1, Ec=1, Md=1
+  transition
+      R3[(Sl == 1) && (Wk == 1) &&
+         !((Ec == 1) && (Fg == 1) && (Md == 1) && (Te == 1) && (Wd == 1))] {
+    // [prod] Sl==1, Wk==1 >> Fg=1, Te=1, Md=1, Wd=1, Ec=1
+    Fg = 1;
+    Te = 1;
+    Md = 1;
+    Wd = 1;
+    Ec = 1;
+  }
+  // [depl] Wd==0 >> Wk=0, Te=0
+  transition R4[(Wd == 0) && !((Te == 0) && (Wk == 0))] {
+    // [depl] Wd==0 >> Wk=0, Te=0
+    Wk = 0;
+    Te = 0;
+  }
+  // [prod] Rp==1, Sl==1 >> Ec=1
+  transition R5[(Rp == 1) && (Sl == 1) && !((Ec == 1))] {
+    // [prod] Sl==1, Rp==1 >> Ec=1
+    Ec = 1;
+  }
+  // [prod] Rp==1, Ec==1 >> Wk=1
+  transition R6[(Ec == 1) && (Rp == 1) && !((Wk == 1))] {
+    // [prod] Rp==1, Ec==1 >> Wk=1
+    Wk = 1;
+  }
+  // [prod] Wk==1, Wd==1 >> Sd=1, Rp=1
+  transition R7[(Wd == 1) && (Wk == 1) && !((Rp == 1) && (Sd == 1))] {
+    // [prod] Wk==1, Wd==1 >> Rp=1, Sd=1
+    Rp = 1;
+    Sd = 1;
+  }
+  // [prod] Md==1, At==1 >> Ai=1
+  transition R8[(At == 1) && (Md == 1) && !((Ai == 1))] {
+    // [prod] At==1, Md==1 >> Ai=1
+    Ai = 1;
+  }
+  // [depl] Wk==0 >> Fg=0, Sd=0
+  transition R9[(Wk == 0) && !((Fg == 0) && (Sd == 0))] {
+    // [depl] Wk==0 >> Fg=0, Sd=0
+    Fg = 0;
+    Sd = 0;
+  }
+  // [depl] Wk==0, Rp==0 >> Ec=0
+  transition R10[(Rp == 0) && (Wk == 0) && !((Ec == 0))] {
+    // [depl] Wk==0, Rp==0 >> Ec=0
+    Ec = 0;
+  }
+  // [cons] Sd==1 >> Ac=0
+  transition R11[(Sd == 1) && !((Ac == 0))] {
+    // [cons] Sd==1 >> Ac=0
+    Ac = 0;
+  }
+  // [depl] Ac==1, Sd==0 >> Wk=0, Rp=0
+  transition R12[(Ac == 1) && (Sd == 0) && !((Rp == 0) && (Wk == 0))] {
+    // [depl] Ac==1, Sd==0 >> Wk=0, Rp=0
+    Wk = 0;
+    Rp = 0;
+  }
+  // [depl] Ai==0 >> Rp=0, Wk=0, Te=0
+  transition R13[(Ai == 0) && !((Rp == 0) && (Te == 0) && (Wk == 0))] {
+    // [depl] Ai==0 >> Rp=0, Te=0, Wk=0
+    Rp = 0;
+    Te = 0;
+    Wk = 0;
+  }
+}

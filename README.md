@@ -1,22 +1,20 @@
-A Python binding for libITS
-===========================
+# A Python binding for libITS
 
-(C) 2018 Franck Pommereau <franck.pommereau@univ-evry.fr>
+(C) 2018 [Franck Pommereau](franck.pommereau@univ-evry.fr)
 
-This library provides a Python binding for libITS https://github.com/lip6/libITS
+This library provides a Python binding for [libITS](https://github.com/lip6/libITS).
 
 ## Requirements
 
- - Python 3 (tested with 3.5.2), this binding is not expected to work
-   with Python 2
- - Cython (tested with 0.27.3)
+- Python 3
+- Cython
+- [pyddd](https://github.com/fpom/pyddd)
 
-libITS (tested with 1.9.0) will be automatically downloaded and installed
-during the installation
+libITS will be automatically downloaded and installed during the installation.
 
 ## Installation
 
-Run `python setup.py install` as usual.
+Run `pip install git+https://github.com/fpom/pyits`.
 
 You may check the doctests in the module by running `python3 test.py`,
 which should produce no output if everything goes well.

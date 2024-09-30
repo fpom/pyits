@@ -16,7 +16,7 @@ cdef extern from "its/Options.hh" namespace "its" :
 cdef class model :
     def __init__ (model self, str path, str fmt="") :
         """
-        >>> m = model(",t.gal")
+        >>> m = model("test.gal")
         >>> next(iter(m.initial().items()))
         {'#0': [{...}]}
         """
@@ -32,14 +32,14 @@ cdef class model :
         handleInputOptions(args, self.i)
     cpdef sdd initial (model self) :
         """
-        >>> m = model(",t.gal")
+        >>> m = model("test.gal")
         >>> next(iter(m.initial().items()))
         {'#0': [{...'Ac': 1...}]}
         """
         return makesdd(self.i.getInitialState())
     def reachable (model self, verbose=None) :
         """
-        >>> m = model(",t.gal")
+        >>> m = model("test.gal")
         >>> len(m.reachable())
         109
         """
