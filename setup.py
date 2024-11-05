@@ -1,9 +1,8 @@
 import os
 import sys
+import site
 import ctypes
 import ctypes.util
-import urllib.request
-import tarfile
 
 from distutils.core import setup
 from Cython.Build import cythonize
@@ -86,4 +85,5 @@ setup(
         ],
         language_level=3,
     ),
+    data_files=[(site.getsitepackages(".")[0], ["its.pxd"])],
 )
