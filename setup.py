@@ -69,6 +69,9 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
+    install_requires=[
+        "pyddd @ git+https://github.com/fpom/cunf-ptnet-py3.git",
+    ],
     ext_modules=cythonize(
         [
             Extension(
