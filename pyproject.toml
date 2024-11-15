@@ -21,7 +21,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "pyddd @ git+https://github.com/fpom/cunf-ptnet-py3.git",
+  "pyddd @ git+https://github.com/fpom/pyddd.git",
 ]
 
 [project.urls]
