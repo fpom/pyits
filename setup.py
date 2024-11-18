@@ -1,55 +1,40 @@
 import os
-import sys
 import site
-import ctypes
-import ctypes.util
+import tarfile
 
-from distutils.core import setup
-from Cython.Build import cythonize
-from distutils.extension import Extension
 from pathlib import Path
 
-
-def which_ddd():
-    so_name = ctypes.util.find_library("DDD")
-    if not so_name:
-        return None
-    found = []
-
-    class dl_phdr_info(ctypes.Structure):
-        _fields_ = [("padding0", ctypes.c_void_p), ("dlpi_name", ctypes.c_char_p)]
-
-    callback_t = ctypes.CFUNCTYPE(
-        ctypes.c_int,
-        ctypes.POINTER(dl_phdr_info),
-        ctypes.POINTER(ctypes.c_size_t),
-        ctypes.c_char_p,
-    )
-    dl_iterate_phdr = ctypes.CDLL("libc.so.6").dl_iterate_phdr
-    dl_iterate_phdr.argtypes = [callback_t, ctypes.c_char_p]
-    dl_iterate_phdr.restype = ctypes.c_int
-
-    def callback(info, _, data):
-        if data in info.contents.dlpi_name:
-            found.append(info.contents.dlpi_name)
-        return 0
-
-    _ = ctypes.CDLL(so_name)
-    dl_iterate_phdr(callback_t(callback), os.fsencode(so_name))
-    if found:
-        return Path(found[0].decode())
-    else:
-        return None
+from distutils.core import setup
+from setuptools.command.install import install
+from distutils.extension import Extension
+from Cython.Build import cythonize
 
 
-DDDPATH = which_ddd()
-if DDDPATH is None:
-    sys.stderr.write("*** could not find libddd ***")
-    sys.exit(1)
+##
+## install libITS
+##
 
-ITSLIB = DDDPATH.parent
-ITSINC = ITSLIB.parent / "include"
+
+class InstallITS(install):
+    # install libITS together with Python package
+    def run(self):
+        super().run()
+        with tarfile.TarFile.open("libITS.tar.gz") as tar:
+            tar.extractall(self.install_base, filter="fully_trusted")
+
+
+# install libITS lcoally for build
+ITSBASE = Path("libITS").absolute()
+with tarfile.TarFile.open("libITS.tar.gz") as tar:
+    tar.extractall(ITSBASE, filter="fully_trusted")
+ITSLIB = ITSBASE / "lib"
+ITSINC = ITSBASE / "include"
+os.environ["LD_LIBRARY_PATH"] = str(ITSLIB)
 os.environ["CXX"] = "g++"
+
+##
+## setup
+##
 
 long_description = Path("README.md").read_text(encoding="utf-8")
 description = (long_description.splitlines())[0]
@@ -69,6 +54,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
+    packages=[],
     ext_modules=cythonize(
         [
             Extension(
